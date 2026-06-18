@@ -2,7 +2,7 @@
   "name": "Controle Roberto",
   "short_name": "Controle",
   "description": "Acompanhe vendas, fiado e cargas",
-  "start_url": "./controle-roberto-pwa.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
