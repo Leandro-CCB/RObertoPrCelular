@@ -1,8 +1,8 @@
 // ── SERVICE WORKER — Controle Roberto ────────────────────────────
-const CACHE_NAME = 'controle-roberto-v1';
+const CACHE_NAME = 'controle-roberto-v2';
 const ASSETS = [
   './',
-  './controle-roberto-pwa.html',
+  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
