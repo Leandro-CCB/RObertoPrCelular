@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1565c0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Controle Roberto">
+<title>Controle Roberto</title>
+
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --bg: #0f1923;
+  --bg2: #162032;
+  --card: #1e2d40;
+  --card2: #243448;
+  --border: #2d4060;
+  --accent: #1976d2;
+  --accent2: #42a5f5;
+  --ultra: #60a5fa;
+  --butano: #4ade80;
+  --danger: #f87171;
+  --danger-bg: rgba(248,113,113,0.12);
+  --warning: #fbbf24;
+  --warning-bg: rgba(251,191,36,0.12);
+  --success: #4ade80;
+  --success-bg: rgba(74,222,128,0.1);
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --radius: 14px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── APP SHELL ── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  height: 100vh;
+}
+
+/* ── HEADER ── */
+.app-header {
+  background: linear-gradient(135deg, #0d47a1, #1565c0);
+  padding: 12px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  padding-top: max(12px, env(safe-area-inset-top, 12px));
+}
+
+.header-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.header-text { flex: 1; }
+.header-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #fff;
+  line-height: 1.1;
+}
+.header-sub {
+  font-size: 10px;
+  color: rgba(255,255,255,0.65);
+  margin-top: 1px;
+  font-weight: 500;
+}
+
+.refresh-btn {
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.refresh-btn:active { background: rgba(255,255,255,0.3); transform: scale(0.92); }
+.refresh-btn.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── CONTENT ── */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.tab-content { display: none; padding: 12px 12px 80px; }
+.tab-content.active { display: block; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  display: flex;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 4px 8px;
+  background: none;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  position: relative;
+}
+.nav-btn.active { color: var(--accent2); }
+.nav-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--accent2);
+  border-radius: 0 0 3px 3px;
+}
+.nav-icon { font-size: 22px; line-height: 1; }
+.nav-label { font-size: 9px; font-weight: 600; letter-spacing: 0.4px; text-transform: uppercase; }
+
+/* ── CARDS ── */
+.metric-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.metric-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.metric-grid.cols1 { grid-template-columns: 1fr; }
+
+.metric-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  position: relative;
+  overflow: hidden;
+}
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.metric-card.c-blue::before { background: linear-gradient(90deg,#1565c0,#42a5f5); }
+.metric-card.c-green::before { background: linear-gradient(90deg,#15803d,#4ade80); }
+.metric-card.c-red::before { background: linear-gradient(90deg,#b91c1c,#f87171); }
+.metric-card.c-orange::before { background: linear-gradient(90deg,#b45309,#fbbf24); }
+.metric-card.c-purple::before { background: linear-gradient(90deg,#6d28d9,#a78bfa); }
+.metric-card.c-teal::before { background: linear-gradient(90deg,#0f766e,#2dd4bf); }
+.metric-card.c-sky::before { background: linear-gradient(90deg,#0284c7,#38bdf8); }
+
+.metric-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.metric-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -0.5px;
+}
+.metric-value.sm { font-size: 16px; letter-spacing: -0.3px; }
+.metric-value.blue { color: var(--ultra); }
+.metric-value.green { color: var(--success); }
+.metric-value.red { color: var(--danger); }
+.metric-value.orange { color: var(--warning); }
+.metric-value.purple { color: #a78bfa; }
+.metric-value.teal { color: #2dd4bf; }
+
+/* ── SECTION TITLE ── */
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text3);
+  margin: 16px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── PR CARD ── */
+.pr-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.pr-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--card2);
+  cursor: pointer;
+  user-select: none;
+}
+.pr-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #1565c0, #42a5f5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+.pr-name { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+.pr-total-val { font-size: 16px; font-weight: 800; color: var(--success); }
+.pr-chevron { color: var(--text3); font-size: 12px; transition: transform 0.25s; }
+.pr-chevron.open { transform: rotate(180deg); }
+
+.pr-card-body {
+  display: none;
+  padding: 12px 14px;
+}
+.pr-card-body.open { display: block; }
+
+.pr-marks-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.pr-mark-pill {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.pm-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3); margin-bottom: 3px; }
+.pm-qtd { font-size: 20px; font-weight: 800; line-height: 1; }
+.pm-qtd.ultra { color: var(--ultra); }
+.pm-qtd.butano { color: var(--butano); }
+.pm-val { font-size: 11px; color: var(--text2); margin-top: 2px; font-weight: 500; }
+
+.pay-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.pay-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  background: var(--bg);
+  border-radius: 7px;
+  font-size: 12px;
+}
+.pay-name { color: var(--text2); font-weight: 500; }
+.pay-val { font-weight: 700; color: var(--text); }
+.pay-val.fiado { color: var(--danger); }
+
+/* ── FIADO CARDS ── */
+.fiado-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+.fiado-card.devendo { border-color: rgba(248,113,113,0.4); }
+.fiado-card.zerado { border-color: rgba(74,222,128,0.25); }
+
+.fiado-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--card2);
+  cursor: pointer;
+}
+.fiado-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.fiado-avatar.devendo { background: linear-gradient(135deg, #b91c1c, #f87171); }
+.fiado-avatar.zerado { background: linear-gradient(135deg, #15803d, #4ade80); }
+.fiado-pr-name { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+.fiado-saldo {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1;
+}
+.fiado-saldo.devendo { color: var(--danger); }
+.fiado-saldo.zerado { color: var(--success); }
+
+.fiado-body { display: none; padding: 12px 14px; }
+.fiado-body.open { display: block; }
+
+.fiado-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.fiado-stat {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+}
+.fst-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3); font-weight: 700; margin-bottom: 3px; }
+.fst-val { font-size: 15px; font-weight: 800; }
+.fst-val.red { color: var(--danger); }
+.fst-val.green { color: var(--success); }
+
+.hist-list { display: flex; flex-direction: column; gap: 4px; }
+.hist-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  background: var(--bg);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.hist-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.hist-dot.fiado { background: var(--danger); }
+.hist-dot.pag { background: var(--success); }
+.hist-date { font-size: 10px; color: var(--text3); font-weight: 600; white-space: nowrap; }
+.hist-desc { font-size: 11px; color: var(--text2); flex: 1; }
+.hist-val { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.hist-val.fiado { color: var(--danger); }
+.hist-val.pag { color: var(--success); }
+.hist-saldo { font-size: 10px; color: var(--text3); font-weight: 600; white-space: nowrap; }
+
+/* ── CARGAS ── */
+.carga-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.carga-item.vencida { border-color: rgba(248,113,113,0.4); }
+.carga-item.pago { border-color: rgba(74,222,128,0.2); }
+.carga-item.avencer { border-color: rgba(251,191,36,0.25); }
+.carga-item.prorrogado { border-color: rgba(96,165,250,0.3); }
+
+.carga-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.carga-empresa { font-size: 14px; font-weight: 700; color: var(--text); }
+.carga-date { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.status-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.sp-pago { background: rgba(74,222,128,0.15); color: var(--success); border: 1px solid rgba(74,222,128,0.3); }
+.sp-avencer { background: rgba(251,191,36,0.15); color: var(--warning); border: 1px solid rgba(251,191,36,0.3); }
+.sp-vencida { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
+.sp-prorrogado { background: rgba(96,165,250,0.15); color: var(--ultra); border: 1px solid rgba(96,165,250,0.3); }
+
+.carga-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.carga-chip {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg2);
+  color: var(--text2);
+  font-weight: 500;
+  border: 1px solid var(--border);
+}
+.carga-vals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.cv-item { }
+.cv-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text3); font-weight: 700; }
+.cv-val { font-size: 14px; font-weight: 700; }
+.cv-val.green { color: var(--success); }
+.cv-val.red { color: var(--danger); }
+.cv-val.orange { color: var(--warning); }
+.cv-val.blue { color: var(--ultra); }
+
+.venc-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.venc-info.urgente { background: rgba(248,113,113,0.1); color: var(--danger); }
+.venc-info.atencao { background: rgba(251,191,36,0.1); color: var(--warning); }
+.venc-info.ok { background: rgba(74,222,128,0.1); color: var(--success); }
+.venc-info.prorrogado { background: rgba(96,165,250,0.1); color: var(--ultra); }
+
+/* ── PRÓXIMAS A VENCER ── */
+.proximas-section {
+  background: var(--card);
+  border: 1px solid rgba(251,191,36,0.3);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.proximas-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--warning);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.proxima-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.proxima-row:last-child { border-bottom: none; padding-bottom: 0; }
+.proxima-date { font-size: 13px; font-weight: 800; color: var(--warning); min-width: 36px; }
+.proxima-empresa { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.proxima-val { font-size: 13px; font-weight: 700; color: var(--success); }
+.proxima-badge {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.pb-urgente { background: rgba(248,113,113,0.15); color: var(--danger); }
+.pb-atencao { background: rgba(251,191,36,0.15); color: var(--warning); }
+.pb-ok { background: rgba(74,222,128,0.15); color: var(--success); }
+
+/* ── RANKING ── */
+.rank-list { display: flex; flex-direction: column; gap: 6px; }
+.rank-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.rank-pos {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.rank-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+.rank-val { font-size: 14px; font-weight: 800; color: var(--success); }
+.rank-bar-wrap { width: 100%; height: 3px; background: var(--border); border-radius: 2px; margin-top: 4px; }
+.rank-bar { height: 3px; border-radius: 2px; background: linear-gradient(90deg, #1565c0, #42a5f5); }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-chip.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+.filter-chip:active { transform: scale(0.96); }
+
+/* ── LOADING & EMPTY ── */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 999;
+}
+.loading-icon { font-size: 48px; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } }
+.loading-text { font-size: 14px; font-weight: 600; color: var(--text2); }
+.loading-bar {
+  width: 120px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.loading-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1565c0, #42a5f5);
+  border-radius: 2px;
+  animation: load 1.8s ease-in-out infinite;
+}
+@keyframes load {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text3);
+  font-size: 13px;
+}
+.empty-state .es-icon { font-size: 36px; margin-bottom: 10px; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed;
+  bottom: 90px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1e293b;
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  opacity: 0;
+  transition: all 0.3s;
+  white-space: nowrap;
+  z-index: 9999;
+  border: 1px solid var(--border);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── PAGAMENTO FORMAS MINI ── */
+.pag-formas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.pag-forma-chip {
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  font-weight: 600;
+}
+
+/* ── SCROLL AREA ── */
+.page-scroll { }
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-screen" id="loadingScreen">
+  <svg class="loading-icon" viewBox="0 0 48 48" width="56" height="56" fill="none">
+    <!-- Botijão SVG -->
+    <rect x="14" y="16" width="20" height="26" rx="8" fill="#1565c0"/>
+    <rect x="18" y="12" width="12" height="6" rx="3" fill="#1976d2"/>
+    <rect x="22" y="8" width="4" height="5" rx="2" fill="#42a5f5"/>
+    <rect x="18" y="24" width="12" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
+    <rect x="18" y="30" width="9" height="2" rx="1" fill="rgba(255,255,255,0.2)"/>
+  </svg>
+  <div class="loading-text">Carregando dados…</div>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<!-- App -->
+<div id="app" style="display:none;">
+  <!-- Header -->
+  <div class="app-header">
+    <svg class="header-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="9" y="14" width="22" height="22" rx="8" fill="rgba(255,255,255,0.15)"/>
+      <rect x="9" y="14" width="22" height="22" rx="8" fill="url(#bgrad)"/>
+      <rect x="13" y="10" width="14" height="6" rx="3" fill="rgba(255,255,255,0.5)"/>
+      <rect x="17" y="6" width="6" height="5" rx="2.5" fill="rgba(255,255,255,0.8)"/>
+      <rect x="13" y="22" width="14" height="2.5" rx="1.2" fill="rgba(255,255,255,0.3)"/>
+      <rect x="13" y="28" width="10" height="2" rx="1" fill="rgba(255,255,255,0.2)"/>
+      <defs>
+        <linearGradient id="bgrad" x1="9" y1="14" x2="31" y2="36" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#42a5f5"/>
+          <stop offset="1" stop-color="#1565c0"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="header-text">
+      <div class="header-title">Controle Roberto</div>
+      <div class="header-sub" id="lastUpdate">Atualizando…</div>
+    </div>
+    <button class="refresh-btn" onclick="refreshData()" id="refreshBtn">↻</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content-area" id="contentArea">
+
+    <!-- Tab: RESUMO -->
+    <div class="tab-content active page-scroll" id="tab-resumo">
+
+      <!-- Filtros de período -->
+      <div class="filter-bar" id="resumoFilters">
+        <div class="filter-chip active" data-filter="todos" onclick="setFiltroResumo('todos', this)">Tudo</div>
+        <div class="filter-chip" data-filter="hoje" onclick="setFiltroResumo('hoje', this)">Hoje</div>
+        <div class="filter-chip" data-filter="semana" onclick="setFiltroResumo('semana', this)">Esta semana</div>
+      </div>
+
+      <!-- Mês chips (gerados dinamicamente) -->
+      <div class="filter-bar" id="mesFiltros" style="margin-top:-4px;"></div>
+
+      <!-- Totais principais -->
+      <div class="metric-grid" id="resumoGrid"></div>
+
+      <!-- Ranking -->
+      <div class="section-title">🏆 Ranking PRs</div>
+      <div class="rank-list" id="rankingList"></div>
+
+      <!-- Cards por PR -->
+      <div class="section-title">👤 Por Vendedor</div>
+      <div id="prCardsResumo"></div>
+    </div>
+
+    <!-- Tab: FIADO -->
+    <div class="tab-content page-scroll" id="tab-fiado">
+      <div class="metric-grid" id="fiadoResumoGrid" style="margin-bottom:12px;"></div>
+      <div id="fiadoCards"></div>
+    </div>
+
+    <!-- Tab: CARGAS -->
+    <div class="tab-content page-scroll" id="tab-cargas">
+      <div class="metric-grid" id="cargasGrid" style="margin-bottom:12px;"></div>
+      <div id="proximasVencer"></div>
+      <div class="section-title">📋 Registro de Cargas</div>
+
+      <!-- Filtros de cargas -->
+      <div class="filter-bar" id="cargaStatusFilters">
+        <div class="filter-chip active" data-filter="" onclick="setCargaFiltro('', this)">Todos</div>
+        <div class="filter-chip" data-filter="A VENCER" onclick="setCargaFiltro('A VENCER', this)">A Vencer</div>
+        <div class="filter-chip" data-filter="VENCIDO" onclick="setCargaFiltro('VENCIDO', this)">Vencidas</div>
+        <div class="filter-chip" data-filter="PAGO" onclick="setCargaFiltro('PAGO', this)">Pagas</div>
+      </div>
+
+      <div id="cargasList"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" id="nav-resumo" onclick="showTab('resumo')">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Resumo</span>
+    </button>
+    <button class="nav-btn" id="nav-fiado" onclick="showTab('fiado')">
+      <span class="nav-icon">📒</span>
+      <span class="nav-label">Fiado</span>
+    </button>
+    <button class="nav-btn" id="nav-cargas" onclick="showTab('cargas')">
+      <span class="nav-icon">🚛</span>
+      <span class="nav-label">Cargas</span>
+    </button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── FIREBASE CONFIG (mesma do projeto principal) ─────────────────
+const PROJECT = 'gas-do-povo-3ce65';
+const KEY     = 'AIzaSyBUNAiODlVTn1C_VQ1bgpurDNBQvRmmwKs';
+const BASE    = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
+
+// ── FIRESTORE HELPERS ────────────────────────────────────────────
+function fromFSValue(v) {
+  if (!v) return null;
+  if ('nullValue'    in v) return null;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('integerValue' in v) return parseInt(v.integerValue, 10);
+  if ('doubleValue'  in v) return v.doubleValue;
+  if ('stringValue'  in v) return v.stringValue;
+  if ('arrayValue'   in v) return (v.arrayValue.values || []).map(fromFSValue);
+  if ('mapValue'     in v) return fromFSFields(v.mapValue.fields || {});
+  return null;
+}
+function fromFSFields(fields) {
+  const obj = {};
+  for (const k in fields) obj[k] = fromFSValue(fields[k]);
+  return obj;
+}
+function fromFSDoc(doc) {
+  if (!doc || !doc.fields) return null;
+  const obj = fromFSFields(doc.fields);
+  obj._fbId = (doc.name || '').split('/').pop();
+  return obj;
+}
+async function fsGetCollection(col) {
+  let docs = [], pageToken = null;
+  do {
+    let url = `${BASE}/${col}?key=${KEY}&pageSize=300`;
+    if (pageToken) url += `&pageToken=${pageToken}`;
+    const r = await fetch(url);
+    const j = await r.json();
+    if (j.documents) docs = docs.concat(j.documents.map(fromFSDoc));
+    pageToken = j.nextPageToken || null;
+  } while (pageToken);
+  return docs;
+}
+async function fsGetDoc(col, id) {
+  const r = await fetch(`${BASE}/${col}/${id}?key=${KEY}`);
+  if (!r.ok) return null;
+  const j = await r.json();
+  return j.fields ? fromFSFields(j.fields) : null;
+}
+
+// ── STATE ────────────────────────────────────────────────────────
+let lancamentos = [];
+let cargas = [];
+let fiadoPagamentos = [];
+
+const PAY_FIELDS  = ['Espécie','Débito','Crédito','QR Code','Pix','Moeda','Fiado','Gás do Povo','Sobras Anteriores'];
+const PAY_EMOJIS  = {'Espécie':'💵','Débito':'💳','Crédito':'💳','QR Code':'📱','Pix':'⚡','Moeda':'🪙','Fiado':'📒','Gás do Povo':'🔥','Sobras Anteriores':'🏦'};
+const MESES_PT    = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MESES_FULL  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+let currentTab = 'resumo';
+let filtroResumo = 'todos';
+let filtroMes = '';
+let filtroCarga = '';
+
+// ── HELPERS ──────────────────────────────────────────────────────
+function hojeLocal() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtNum(n) {
+  return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtVal(n) { return 'R$ ' + fmtNum(n); }
+function fmtDate(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  return `${d}/${m}/${y}`;
+}
+function fmtDateShort(s) {
+  if (!s) return '—';
+  const [y,m,d] = s.split('-');
+  return `${d}/${m}`;
+}
+
+function diasParaVenc(vencStr) {
+  const hoje2 = new Date(); hoje2.setHours(0,0,0,0);
+  const vd = new Date(vencStr + 'T12:00:00');
+  return Math.round((vd - hoje2) / 86400000);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── LOAD DATA ────────────────────────────────────────────────────
+async function loadData() {
+  const [lancs, cargasData, fiadoPagDoc] = await Promise.all([
+    fsGetCollection('lancamentos'),
+    fsGetCollection('cargas'),
+    fsGetDoc('config', 'fiado_pagamentos'),
+  ]);
+
+  // Dedup lançamentos
+  const visto = new Set();
+  lancamentos = lancs.filter(l => {
+    if (visto.has(l.id)) return false;
+    visto.add(l.id); return true;
+  });
+  cargas = cargasData;
+  fiadoPagamentos = (fiadoPagDoc && fiadoPagDoc.lista) ? fiadoPagDoc.lista : [];
+}
+
+async function refreshData() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  try {
+    await loadData();
+    renderCurrentTab();
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent =
+      `Atualizado às ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+    showToast('✓ Dados atualizados!');
+  } catch(e) {
+    showToast('⚠ Erro ao atualizar!');
+  }
+  btn.classList.remove('spinning');
+}
+
+// ── TABS ─────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+  currentTab = name;
+  document.getElementById('contentArea').scrollTop = 0;
+  renderCurrentTab();
+}
+
+function renderCurrentTab() {
+  if (currentTab === 'resumo') renderResumo();
+  if (currentTab === 'fiado')  renderFiado();
+  if (currentTab === 'cargas') renderCargas();
+}
+
+// ── FILTROS RESUMO ───────────────────────────────────────────────
+function setFiltroResumo(f, el) {
+  filtroResumo = f;
+  if (f !== 'mes') filtroMes = '';
+  document.querySelectorAll('#resumoFilters .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  // Deselect mes chips
+  document.querySelectorAll('#mesFiltros .filter-chip').forEach(c => c.classList.remove('active'));
+  renderResumo();
+}
+
+function setFiltroMes(mes, el) {
+  filtroMes = mes;
+  filtroResumo = 'mes';
+  document.querySelectorAll('#resumoFilters .filter-chip').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('#mesFiltros .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderResumo();
+}
+
+function filtrarLancamentos() {
+  let f = [...lancamentos];
+  const hoje = hojeLocal();
+  if (filtroResumo === 'hoje') {
+    f = f.filter(l => l.data === hoje);
+  } else if (filtroResumo === 'semana') {
+    const d = new Date(); d.setDate(d.getDate() - 7);
+    const lim = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    f = f.filter(l => l.data >= lim);
+  } else if (filtroResumo === 'mes' && filtroMes) {
+    f = f.filter(l => l.data.startsWith(filtroMes));
+  }
+  return f;
+}
+
+function buildMesChips() {
+  const meses = [...new Set(lancamentos.map(l => l.data.slice(0,7)))].sort().reverse();
+  const cont = document.getElementById('mesFiltros');
+  cont.innerHTML = meses.map(m => {
+    const [y, mo] = m.split('-');
+    return `<div class="filter-chip" data-filter="${m}" onclick="setFiltroMes('${m}', this)">${MESES_PT[parseInt(mo,10)-1]} ${y}</div>`;
+  }).join('');
+}
+
+// ── RENDER RESUMO ────────────────────────────────────────────────
+function renderResumo() {
+  buildMesChips();
+  const f = filtrarLancamentos();
+
+  // Totais
+  const totalQtd   = f.reduce((a,b) => a + b.qtd, 0);
+  const totalVal   = f.reduce((a,b) => a + b.total, 0);
+  const qtdUltra   = f.filter(l => l.marca === 'Ultragaz').reduce((a,b) => a + b.qtd, 0);
+  const qtdButano  = f.filter(l => l.marca === 'Butano').reduce((a,b) => a + b.qtd, 0);
+  const valUltra   = f.filter(l => l.marca === 'Ultragaz').reduce((a,b) => a + b.total, 0);
+  const valButano  = f.filter(l => l.marca === 'Butano').reduce((a,b) => a + b.total, 0);
+
+  // Fiado (1 por vendaId)
+  const visitadosFiado = new Set();
+  const totalFiado = f.filter(l => {
+    const vid = l.vendaId != null ? l.vendaId : l.id;
+    if (visitadosFiado.has(vid)) return false;
+    visitadosFiado.add(vid); return true;
+  }).reduce((a,b) => a + (b.pag && b.pag['Fiado'] || 0), 0);
+
+  const grid = document.getElementById('resumoGrid');
+  grid.innerHTML = `
+    <div class="metric-card c-green">
+      <div class="metric-label">💰 Valor Total</div>
+      <div class="metric-value green sm">${fmtVal(totalVal)}</div>
+    </div>
+    <div class="metric-card c-blue">
+      <div class="metric-label">🛢️ Botijões</div>
+      <div class="metric-value blue">${totalQtd}</div>
+    </div>
+    <div class="metric-card c-sky">
+      <div class="metric-label">🔵 Ultra Qtd</div>
+      <div class="metric-value blue">${qtdUltra}</div>
+    </div>
+    <div class="metric-card c-teal">
+      <div class="metric-label">🟢 Butano Qtd</div>
+      <div class="metric-value teal">${qtdButano}</div>
+    </div>
+    <div class="metric-card c-blue" style="grid-column:1">
+      <div class="metric-label">🔵 Valor Ultra</div>
+      <div class="metric-value blue sm">${fmtVal(valUltra)}</div>
+    </div>
+    <div class="metric-card c-teal">
+      <div class="metric-label">🟢 Valor Butano</div>
+      <div class="metric-value teal sm">${fmtVal(valButano)}</div>
+    </div>
+    ${totalFiado > 0 ? `
+    <div class="metric-card c-red" style="grid-column:1/-1">
+      <div class="metric-label">📒 Fiado no Período</div>
+      <div class="metric-value red sm">${fmtVal(totalFiado)}</div>
+    </div>` : ''}
+  `;
+
+  // Ranking
+  const prsAtivos = [...new Set(f.map(l => l.pr))];
+  const prDados = prsAtivos.map(pr => {
+    const itens = f.filter(l => l.pr === pr);
+    return { pr, qtd: itens.reduce((a,b) => a+b.qtd, 0), val: itens.reduce((a,b) => a+b.total, 0) };
+  }).sort((a,b) => b.val - a.val);
+
+  const maxVal = prDados.length ? prDados[0].val : 1;
+  const medalhas = ['🥇','🥈','🥉'];
+  document.getElementById('rankingList').innerHTML = prDados.slice(0, 5).map((d, i) => `
+    <div class="rank-item">
+      <div class="rank-pos">${medalhas[i] || '#'+(i+1)}</div>
+      <div style="flex:1">
+        <div class="rank-name">${d.pr}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar" style="width:${Math.round(d.val/maxVal*100)}%"></div></div>
+      </div>
+      <div>
+        <div class="rank-val">${fmtVal(d.val)}</div>
+        <div style="font-size:10px;color:var(--text3);text-align:right">${d.qtd} bot.</div>
+      </div>
+    </div>
+  `).join('') || '<div class="empty-state"><div class="es-icon">📭</div>Sem dados para este filtro</div>';
+
+  // Cards por PR
+  if (!prDados.length) {
+    document.getElementById('prCardsResumo').innerHTML = '<div class="empty-state"><div class="es-icon">📭</div>Nenhum lançamento encontrado</div>';
+    return;
+  }
+
+  document.getElementById('prCardsResumo').innerHTML = prDados.map(d => {
+    const itens = f.filter(l => l.pr === d.pr);
+    const qtdU = itens.filter(l => l.marca==='Ultragaz').reduce((a,b) => a+b.qtd, 0);
+    const qtdB = itens.filter(l => l.marca==='Butano').reduce((a,b) => a+b.qtd, 0);
+    const valU = itens.filter(l => l.marca==='Ultragaz').reduce((a,b) => a+b.total, 0);
+    const valB = itens.filter(l => l.marca==='Butano').reduce((a,b) => a+b.total, 0);
+
+    const pagSoma = {};
+    const visitados = new Set();
+    const itensPrimeiros = itens.filter(l => {
+      const vid = l.vendaId != null ? l.vendaId : l.id;
+      if (visitados.has(vid)) return false;
+      visitados.add(vid); return true;
+    });
+    PAY_FIELDS.forEach(p => pagSoma[p] = itensPrimeiros.reduce((a,b) => a + (b.pag && b.pag[p] || 0), 0));
+    const pagRows = PAY_FIELDS.filter(p => pagSoma[p] > 0);
+
+    const initials = d.pr.split(' ').map(w => w[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+    const bodyId = 'prbody_' + d.pr.replace(/[^a-z0-9]/gi,'');
+
+    return `
+    <div class="pr-card">
+      <div class="pr-card-header" onclick="togglePrCard('${bodyId}', this)">
+        <div class="pr-avatar">${initials}</div>
+        <div style="flex:1">
+          <div class="pr-name">${d.pr}</div>
+          <div style="font-size:10px;color:var(--text3)">${d.qtd} botijão(s)</div>
+        </div>
+        <div style="text-align:right">
+          <div class="pr-total-val">${fmtVal(d.val)}</div>
+        </div>
+        <div class="pr-chevron" id="chev_${bodyId}">▾</div>
+      </div>
+      <div class="pr-card-body" id="${bodyId}">
+        <div class="pr-marks-row">
+          <div class="pr-mark-pill">
+            <div class="pm-label">🔵 Ultragaz</div>
+            <div class="pm-qtd ultra">${qtdU}</div>
+            <div class="pm-val">${valU>0?fmtVal(valU):'—'}</div>
+          </div>
+          <div class="pr-mark-pill">
+            <div class="pm-label">🟢 Butano</div>
+            <div class="pm-qtd butano">${qtdB}</div>
+            <div class="pm-val">${valB>0?fmtVal(valB):'—'}</div>
+          </div>
+        </div>
+        ${pagRows.length ? `
+        <div class="pay-list">
+          ${pagRows.map(p => `
+            <div class="pay-row">
+              <span class="pay-name">${PAY_EMOJIS[p]} ${p}</span>
+              <span class="pay-val ${p==='Fiado'?'fiado':''}">${fmtVal(pagSoma[p])}</span>
+            </div>
+          `).join('')}
+        </div>` : '<div style="font-size:11px;color:var(--text3);padding:4px 0">Sem dados de pagamento</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function togglePrCard(bodyId, header) {
+  const body = document.getElementById(bodyId);
+  const chev = document.getElementById('chev_' + bodyId);
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+// ── RENDER FIADO ─────────────────────────────────────────────────
+function calcFiadoPorPR() {
+  const fiado = {};
+  const vistos = new Set();
+  lancamentos.forEach(l => {
+    const vid = l.vendaId != null ? l.vendaId : l.id;
+    if (vistos.has(vid)) return;
+    vistos.add(vid);
+    const vf = (l.pag && l.pag['Fiado']) || 0;
+    if (vf > 0) {
+      if (!fiado[l.pr]) fiado[l.pr] = [];
+      fiado[l.pr].push({ data: l.data, valor: vf, tipo: 'fiado', desc: 'Venda fiado', id: vid });
+    }
+  });
+  fiadoPagamentos.forEach(p => {
+    if (!fiado[p.pr]) fiado[p.pr] = [];
+    fiado[p.pr].push({ data: p.data, valor: p.valor, tipo: 'pagamento', desc: p.obs || 'Pagamento recebido', id: p.id, formasPag: p.formasPag || null });
+  });
+
+  const resultado = {};
+  Object.keys(fiado).forEach(pr => {
+    const hist = [...fiado[pr]].sort((a,b) => a.data.localeCompare(b.data) || a.id - b.id);
+    let saldo = 0;
+    const historico = hist.map(h => {
+      if (h.tipo === 'fiado') saldo += h.valor;
+      else saldo -= h.valor;
+      return { ...h, saldoApos: saldo };
+    });
+    const totalFiado = hist.filter(h => h.tipo==='fiado').reduce((a,b) => a+b.valor, 0);
+    const totalPago  = hist.filter(h => h.tipo==='pagamento').reduce((a,b) => a+b.valor, 0);
+    resultado[pr] = { totalFiado, totalPago, saldo: Math.round(saldo*100)/100, historico };
+  });
+  return resultado;
+}
+
+function renderFiado() {
+  const dados = calcFiadoPorPR();
+  const prs   = Object.keys(dados).sort((a,b) => dados[b].saldo - dados[a].saldo);
+
+  const totalDevendo  = prs.reduce((a,p) => a + (dados[p].saldo>0 ? dados[p].saldo : 0), 0);
+  const totalPRs      = prs.filter(p => dados[p].saldo > 0).length;
+  const totalGerado   = prs.reduce((a,p) => a + dados[p].totalFiado, 0);
+  const totalRecebido = prs.reduce((a,p) => a + dados[p].totalPago, 0);
+
+  document.getElementById('fiadoResumoGrid').innerHTML = `
+    <div class="metric-card c-red" style="grid-column:1/-1">
+      <div class="metric-label">💸 Total em Aberto</div>
+      <div class="metric-value red sm">${fmtVal(totalDevendo)}</div>
+    </div>
+    <div class="metric-card c-orange">
+      <div class="metric-label">👤 PRs Devedores</div>
+      <div class="metric-value orange">${totalPRs}</div>
+    </div>
+    <div class="metric-card c-green">
+      <div class="metric-label">✅ Total Recebido</div>
+      <div class="metric-value green sm">${fmtVal(totalRecebido)}</div>
+    </div>
+    <div class="metric-card c-purple" style="grid-column:1/-1">
+      <div class="metric-label">📒 Total Fiado Gerado</div>
+      <div class="metric-value purple sm">${fmtVal(totalGerado)}</div>
+    </div>
+  `;
+
+  if (!prs.length) {
+    document.getElementById('fiadoCards').innerHTML = '<div class="empty-state"><div class="es-icon">📒</div>Nenhum fiado registrado</div>';
+    return;
+  }
+
+  document.getElementById('fiadoCards').innerHTML = prs.map(pr => {
+    const d = dados[pr];
+    const devendo = d.saldo > 0.009;
+    const zerado  = d.saldo <= 0.009;
+    const cls     = devendo ? 'devendo' : 'zerado';
+    const semaforo = devendo ? '🔴' : '🟢';
+    const bodyId  = 'fiadobody_' + pr.replace(/[^a-z0-9]/gi,'');
+
+    // Últimas entradas (máx 10, invertido)
+    const histSlice = [...d.historico].reverse().slice(0, 10);
+
+    const histHtml = histSlice.map(h => {
+      const isFiado = h.tipo === 'fiado';
+      return `<div class="hist-item">
+        <div class="hist-dot ${isFiado?'fiado':'pag'}"></div>
+        <div class="hist-date">${fmtDateShort(h.data)}</div>
+        <div class="hist-desc">${isFiado ? '📒 Fiado' : '✅ Pago'}</div>
+        <div class="hist-val ${isFiado?'fiado':'pag'}">${isFiado?'+':'-'}${fmtVal(h.valor)}</div>
+        <div class="hist-saldo">${fmtVal(Math.abs(h.saldoApos))}</div>
+      </div>`;
+    }).join('');
+
+    return `
+    <div class="fiado-card ${cls}">
+      <div class="fiado-header" onclick="toggleFiadoCard('${bodyId}', this)">
+        <div class="fiado-avatar ${cls}">${pr.slice(0,2).toUpperCase()}</div>
+        <div style="flex:1">
+          <div class="fiado-pr-name">${semaforo} ${pr}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:2px">
+            Gerado: ${fmtVal(d.totalFiado)} &bull; Recebido: ${fmtVal(d.totalPago)}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div class="fiado-saldo ${cls}">${fmtVal(Math.abs(d.saldo))}</div>
+          ${d.saldo < 0 ? '<div style="font-size:9px;color:var(--success)">crédito</div>' : ''}
+        </div>
+        <div class="pr-chevron" id="fchev_${bodyId}" style="margin-left:4px">▾</div>
+      </div>
+      <div class="fiado-body" id="${bodyId}">
+        <div class="fiado-stats">
+          <div class="fiado-stat">
+            <div class="fst-label">Total Gerado</div>
+            <div class="fst-val red">${fmtVal(d.totalFiado)}</div>
+          </div>
+          <div class="fiado-stat">
+            <div class="fst-label">Recebido</div>
+            <div class="fst-val green">${fmtVal(d.totalPago)}</div>
+          </div>
+        </div>
+        <div class="section-title" style="margin-top:4px">Histórico</div>
+        ${histHtml ? `<div class="hist-list">${histHtml}</div>` : '<div style="font-size:11px;color:var(--text3)">Sem histórico</div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFiadoCard(bodyId, header) {
+  const body = document.getElementById(bodyId);
+  const chev = document.getElementById('fchev_' + bodyId);
+  const open = body.classList.toggle('open');
+  chev.classList.toggle('open', open);
+}
+
+// ── RENDER CARGAS ────────────────────────────────────────────────
+function setCargaFiltro(f, el) {
+  filtroCarga = f;
+  document.querySelectorAll('#cargaStatusFilters .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderCargas();
+}
+
+function renderCargas() {
+  let f = [...cargas];
+  if (filtroCarga) f = f.filter(c => c.status === filtroCarga || (filtroCarga === 'A VENCER' && c.status === 'PRORROGADO'));
+  const fAll = [...cargas]; // all for summary
+
+  // Summary
+  const totalVal    = fAll.reduce((a,c) => a + (c.valor||0), 0);
+  const totalLiq    = fAll.reduce((a,c) => a + (c.liquido||c.valor||0), 0);
+  const totalPago   = fAll.filter(c => c.status==='PAGO').reduce((a,c) => a + (c.liquido||c.valor||0), 0);
+  const totalPagar  = fAll.filter(c => c.status!=='PAGO' && c.status!=='CANCELADO').reduce((a,c) => a + (c.liquido||c.valor||0), 0);
+  const totalVenc   = fAll.filter(c => c.status==='VENCIDO').reduce((a,c) => a + (c.liquido||c.valor||0), 0);
+  const totalFrete  = fAll.reduce((a,c) => a + (c.frete||0), 0);
+
+  document.getElementById('cargasGrid').innerHTML = `
+    <div class="metric-card c-orange">
+      <div class="metric-label">🚛 Nº Cargas</div>
+      <div class="metric-value orange">${fAll.length}</div>
+    </div>
+    <div class="metric-card c-teal">
+      <div class="metric-label">💰 Valor Total</div>
+      <div class="metric-value teal sm">${fmtVal(totalVal)}</div>
+    </div>
+    <div class="metric-card c-green">
+      <div class="metric-label">✅ Total Pago</div>
+      <div class="metric-value green sm">${fmtVal(totalPago)}</div>
+    </div>
+    <div class="metric-card c-orange">
+      <div class="metric-label">⏳ A Pagar</div>
+      <div class="metric-value orange sm">${fmtVal(totalPagar)}</div>
+    </div>
+    <div class="metric-card c-red" style="grid-column:1/-1">
+      <div class="metric-label">❌ Vencidas</div>
+      <div class="metric-value red sm">${fmtVal(totalVenc)}</div>
+    </div>
+  `;
+
+  // Próximas a vencer
+  const hoje = hojeLocal();
+  const proximas = cargas
+    .filter(c => (c.status === 'A VENCER' || c.status === 'PRORROGADO') && c.venc)
+    .sort((a,b) => a.venc.localeCompare(b.venc))
+    .slice(0, 5);
+
+  const proxEl = document.getElementById('proximasVencer');
+  if (proximas.length) {
+    const rows = proximas.map(c => {
+      const dias = diasParaVenc(c.venc);
+      let cls = 'ok', bCls = 'pb-ok', label = `em ${dias}d`;
+      if (dias < 0)     { cls = 'urgente'; bCls = 'pb-urgente'; label = `${Math.abs(dias)}d atrás`; }
+      else if (dias===0){ cls = 'urgente'; bCls = 'pb-urgente'; label = 'HOJE'; }
+      else if (dias<=2) { cls = 'urgente'; bCls = 'pb-urgente'; }
+      else if (dias<=5) { cls = 'atencao'; bCls = 'pb-atencao'; }
+      return `<div class="proxima-row">
+        <div class="proxima-date">${fmtDateShort(c.venc)}</div>
+        <div style="flex:1">
+          <div class="proxima-empresa">${c.empresa||'—'}</div>
+          <div style="font-size:10px;color:var(--text3)">${c.produto||''}</div>
+        </div>
+        <div class="proxima-val">${c.valor>0?fmtVal(c.liquido||c.valor):'—'}</div>
+        <div class="proxima-badge ${bCls}">${label}</div>
+      </div>`;
+    }).join('');
+    proxEl.innerHTML = `
+      <div class="proximas-section">
+        <div class="proximas-title">📅 Próximas a Vencer <span style="background:rgba(251,191,36,.15);color:var(--warning);border:1px solid rgba(251,191,36,.3);padding:2px 8px;border-radius:10px;font-size:9px;">${proximas.length}</span></div>
+        ${rows}
+      </div>`;
+  } else {
+    proxEl.innerHTML = '';
+  }
+
+  // Lista de cargas
+  const cont = document.getElementById('cargasList');
+  if (!f.length) {
+    cont.innerHTML = '<div class="empty-state"><div class="es-icon">🚛</div>Nenhuma carga encontrada</div>';
+    return;
+  }
+
+  cont.innerHTML = [...f].sort((a,b) => b.data.localeCompare(a.data)).map(c => {
+    const st = c.status || 'A VENCER';
+    let stCls = 'avencer', pillCls = 'sp-avencer', stLabel = st;
+    if (st === 'PAGO')       { stCls = 'pago';      pillCls = 'sp-pago'; }
+    if (st === 'VENCIDO')    { stCls = 'vencida';   pillCls = 'sp-vencida'; }
+    if (st === 'PRORROGADO') { stCls = 'prorrogado';pillCls = 'sp-prorrogado'; stLabel = '📅 PRORROGADO'; }
+
+    let vencHtml = '';
+    if (c.venc && st !== 'PAGO') {
+      const dias = diasParaVenc(c.venc);
+      let vcls = 'ok', vlabel = `Vence ${fmtDate(c.venc)} (em ${dias}d)`;
+      if (st === 'PRORROGADO') { vcls = 'prorrogado'; vlabel = `Prorrogado → ${fmtDate(c.venc)}`; }
+      else if (dias < 0)  { vcls = 'urgente'; vlabel = `Venceu ${fmtDate(c.venc)} (${Math.abs(dias)}d atrás)`; }
+      else if (dias === 0){ vcls = 'urgente'; vlabel = `Vence HOJE — ${fmtDate(c.venc)}`; }
+      else if (dias <= 2) { vcls = 'urgente'; vlabel = `Vence ${fmtDate(c.venc)} (amanhã)`; }
+      else if (dias <= 5) { vcls = 'atencao'; vlabel = `Vence ${fmtDate(c.venc)} (em ${dias}d)`; }
+      vencHtml = `<div class="venc-info ${vcls}">📅 ${vlabel}</div>`;
+    }
+
+    const itensDisplay = c.itens && c.itens.length > 1
+      ? c.itens.map(it => `${it.qtd}×${it.produto}`).join(', ')
+      : (c.produto || '—');
+
+    return `<div class="carga-item ${stCls}">
+      <div class="carga-top">
+        <div>
+          <div class="carga-empresa">${c.empresa || '—'}</div>
+          <div class="carga-date">${fmtDate(c.data)}</div>
+        </div>
+        <div class="status-pill ${pillCls}">${stLabel}</div>
+      </div>
+      <div class="carga-row">
+        <span class="carga-chip">📦 ${itensDisplay}</span>
+        ${c.nf ? `<span class="carga-chip">NF ${c.nf}</span>` : ''}
+        ${c.transp ? `<span class="carga-chip">🚚 ${c.transp}</span>` : ''}
+        ${c.obs ? `<span class="carga-chip">💬 ${c.obs}</span>` : ''}
+      </div>
+      <div class="carga-vals">
+        <div class="cv-item">
+          <div class="cv-label">Valor Líquido</div>
+          <div class="cv-val green">${c.valor>0?fmtVal(c.liquido||c.valor):'—'}</div>
+        </div>
+        ${c.frete ? `<div class="cv-item">
+          <div class="cv-label">Frete</div>
+          <div class="cv-val blue">${fmtVal(c.frete)}</div>
+        </div>` : ''}
+      </div>
+      ${vencHtml}
+    </div>`;
+  }).join('');
+}
+
+// ── SERVICE WORKER REGISTRATION ──────────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('SW registrado:', reg.scope))
+      .catch(err => console.warn('SW falhou:', err));
+  });
+}
+
+// ── BOOT ─────────────────────────────────────────────────────────
+
+(async () => {
+  try {
+    await loadData();
+    const now = new Date();
+    document.getElementById('lastUpdate').textContent =
+      `Atualizado às ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  } catch(e) {
+    console.error('Erro ao carregar:', e);
+    document.getElementById('lastUpdate').textContent = 'Erro ao carregar';
+  }
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  renderResumo();
+})();
+</script>
+</body>
+</html>
